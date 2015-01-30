@@ -13,6 +13,8 @@
 
 (define db (make-parameter #f))
 (define *db-name* "/Users/okazaki/work/html/__schedule/data")
+(define *style* "static/style.css")
+
 
 (define-syntax with-db
   (syntax-rules ()
@@ -23,30 +25,46 @@
                                          (begin0
                                           (begin . body)
                                           (dbm-close (db)))))))))
-(define (dbm-key y m d) #`",|y|-,|m|-,|d|")
 
-(define *style* "static/style.css")
+(define (dbm-key-start y m d) #`",|y|-,|m|-,|d|-start")
+(define (dbm-key-end y m d) #`",|y|-,|m|-,|d|-end")
+(define (dbm-key-total y m d) #`",|y|-,|m|-,|d|-total")
+(define (dbm-key-comment y m d) #`",|y|-,|m|-,|d|")
+
+(define (data-exists key) (dbm-exists? (db) key))
+(define (get-data key) (dbm-get (db) key ""))
+(define (put-data key val) (dbm-put! (db) key val))
+(define (delete-data key) (dbm-delete! (db) key))
+(define (set-data key val)
+  (if (string-null? val)
+      (delete-data key) (put-data key val)))
+
 
 (define (make-month m y)
   (make-date 0 0 0 0 1 m y (date-zone-offset (current-date))))
 
+
 (define (first-day-of-month date)
   (make-month (date-month date) (date-year date)))
+
 
 (define (next-month date)
   (if (= (date-month date) 12)
       (make-month 1 (+ (date-year date) 1))
       (make-month (+ (date-month date) 1) (date-year date))))
 
+
 (define (prev-month date)
   (if (= (date-month date) 1)
       (make-month 12 (- (date-year date) 1))
       (make-month (- (date-month date) 1) (date-year date))))
 
+
 (define (days-of-month date)
   (inexact->exact
    (- (date->modified-julian-day (next-month date))
       (date->modified-julian-day (first-day-of-month date)))))
+
 
 (define (date-slices-of-month date)
   (slices
@@ -56,50 +74,60 @@
     (iota (days-of-month date) 1))
    7 #t #f))
 
+
 (define (month->link date content)
   (html:a :href #`"?y=,(date-year date)&m=,(date-month date)" content))
 
-(define (date-cell year month day)
-  (if day
-      (if (dbm-exists? (db) (dbm-key year month day))
-          (html:a :href #`"?y=,|year|&m=,|month|&d=,|day|" :class "planned" day)
-          (html:a :href #`"?y=,|year|&m=,|month|&d=,|day|" day))
-  ""))
+
+(define (date-cell y m d)
+  (if d
+      (html:a :href #`"?y=,|y|&m=,|m|&d=,|d|" d
+              (if (data-exists (dbm-key-start y m d)) (html:span :class "start" #`"出勤: ,(get-data (dbm-key-start y m d))") "")
+              (if (data-exists (dbm-key-end y m d)) (html:span :class "end" #`"退勤: ,(get-data (dbm-key-end y m d))") "")
+              (if (data-exists (dbm-key-total y m d)) (html:span :class"total" #`"勤務時間: ,(get-data (dbm-key-total y m d))") ""))
+      ""))
+
 
 (define (calendar date)
-  `(,(html:div :class "calendar-header"
-               (html:ul
-                (html:li :class "prev-month"
-                         (month->link (prev-month date)
-                                      #`"&lt; ,(date-year (prev-month date))/,(date-month (prev-month date))"))
+  (let ((current-year (date-year date))
+        (current-month (date-month date))
+        (prev-month (prev-month date))
+        (next-month (next-month date)))
 
-                (html:li :class "current-month"
-                         #`",(date-year date)/,(date-month date)")
+    `(,(html:div :class "calendar-header"
+                 (html:ul
+                  (html:li :class "prev-month"
+                           (month->link prev-month #`"&lt; ,(date-year prev-month)/,(date-month prev-month)"))
 
-                (html:li :class "next-month"
-                         (month->link (next-month date)
-                                      #`",(date-year (next-month date))/,(date-month (next-month date)) &gt;"))))
+                  (html:li :class "current-month"
+                           #`",|current-year|/,|current-month|")
 
-    ,(html:table :class "calendar"
-                 (html:tr (map html:th "日月火水木金土"))
-                 (map (lambda (w)
-                        (html:tr
-                         (map (lambda (d)
-                                (html:td (date-cell (date-year date) (date-month date) d)))
-                              w)))
-                      (date-slices-of-month date)))))
+                  (html:li :class "next-month"
+                           (month->link next-month #`",(date-year next-month)/,(date-month next-month) &gt;"))))
+
+      ,(html:table :class "calendar"
+                   (html:tr (map html:th "日月火水木金土"))
+                   (map (lambda (w)
+                          (html:tr
+                           (map (lambda (d)
+                                  (html:td (date-cell current-year current-month d)))
+                                w)))
+                        (date-slices-of-month date))))))
+
 
 (define (page . content)
   `(,(cgi-header)
     ,(html-doctype)
     ,(html:html
-      (html:head (html:title "個別日報管理表")
-                 (html:link :rel "stylesheet" :href *style*))
+      (html:head
+       (html:meta :name "viewport" :content "width=device-width")
+       (html:meta :http-equiv "Content-Type" :content "text/html; charset=UTF-8")
+       (html:title "個別日報管理表")
+       (html:link :rel "stylesheet" :href *style*))
       (apply html:body
-             (html:div :class "wrapper"
-                       (html:h1 "個別日報管理表")
-                       (html:div :class "contents"
-                                 content))))))
+             (html:h1
+              (html:span (html:a :href "./" "個別日報管理表")))
+             (html:div :class "wrapper" content)))))
 
 
 (define (cmd-show-calendar y m)
@@ -108,33 +136,72 @@
        (calendar (make-month m y))
        (calendar (current-date)))))
 
+
 (define (cmd-show-plan y m d)
-  (let ((plan (dbm-get (db) (dbm-key y m d) "")))
+  (let
+      ((start (dbm-key-start y m d))
+       (end (dbm-key-end y m d))
+       (total (dbm-key-total y m d))
+       (comment (dbm-key-comment y m d)))
+
     (page
-     (calendar (make-month m y))
-     (html:p #`",|y|年,|m|月,|d|日の予定")
-     (html:pre (html-escape-string plan))
-     (html:a :href #`"?y=,|y|&m=,|m|&d=,|d|&c=e" "[予定を編集]"))))
+     (html:h2 #`",|y|年,|m|月,|d|日の日報" (html:a :href #`"?y=,|y|&m=,|m|&d=,|d|&status=e" "[予定を編集]"))
+     (html:dl :class "report"
+              (html:dt "開始時間:")
+              (html:dd (html-escape-string (get-data start)))
+              (html:dt "終了時間:")
+              (html:dd (html-escape-string (get-data end)))
+              (html:dt "勤務時間:")
+              (html:dd (html-escape-string (get-data total)))
+              (html:dt "コメント:")
+              (html:td (html-escape-string (get-data comment)))))))
+
 
 (define (cmd-edit-plan y m d)
-  (let ((plan (dbm-get (db) (dbm-key y m d) "")))
-    (page
-     (html:form
-      (html:p #`",|y|年,|m|月,|d|日の予定")
-      (html:input :type "hidden" :name "c" :value "c")
-      (html:input :type "hidden" :name "y" :value (x->string y))
-      (html:input :type "hidden" :name "m" :value (x->string m))
-      (html:input :type "hidden" :name "d" :value (x->string d))
-      (html:p (html:textarea :row 8 :cols 40 :name "p"
-                             (html-escape-string plan)))
-      (html:p (html:input :type "submit" :name "submit" :value "変更"))))))
+  (let
+      ((start (dbm-key-start y m d))
+       (end (dbm-key-end y m d))
+       (total (dbm-key-total y m d))
+       (comment (dbm-key-comment y m d)))
 
-(define (cmd-change-plan y m d plan)
-  (if (string-null? plan)
-      (dbm-delete! (db) (dbm-key y m d))
-      (dbm-put! (db) (dbm-key y m d) plan))
-  (cgi-header :status "302 Moved"
-              :location #`"?y=,|y|&m=,|m|&d=,|d|"))
+    (page
+     (html:h2 #`",|y|年,|m|月,|d|日の日報 - 編集画面")
+     (html:form :method "get" :action "./calendar.cgi"
+                (html:input :type "hidden" :name "status" :value "c")
+                (html:input :type "hidden" :name "y" :value (x->string y))
+                (html:input :type "hidden" :name "m" :value (x->string m))
+                (html:input :type "hidden" :name "d" :value (x->string d))
+
+                (html:dl :class "edit"
+                         (html:dt "開始時間:")
+                         (html:dd (html:input :type "text" :name "start"
+                                              :value (html-escape-string (get-data start))))
+                         (html:dt "終了時間:")
+                         (html:dd (html:input :type "text" :name "end"
+                                              :value (html-escape-string (get-data end))))
+                         (html:dt "勤務時間:")
+                         (html:dd (html:input :type "text" :name "total"
+                                              :value (html-escape-string (get-data total))))
+                         (html:dt "コメント:")
+                         (html:dd (html:textarea :row 8 :cols 40 :name "comment"
+                                                 (html-escape-string (get-data comment)))))
+                (html:p (html:input :type "submit" :name "submit" :value "更新"))))))
+
+
+(define (cmd-change-plan y m d start end total comment)
+  (let
+      ((key-start (dbm-key-start y m d))
+       (key-end (dbm-key-end y m d))
+       (key-total (dbm-key-total y m d))
+       (key-comment (dbm-key-comment y m d)))
+
+    (set-data key-start start)
+    (set-data key-end end)
+    (set-data key-total total)
+    (set-data key-comment comment)
+
+    (cgi-header :status "302 Moved"
+                :location #`"?y=,|y|&m=,|m|&d=,|d|")))
 
 (define (main args)
   (cgi-main
@@ -142,17 +209,24 @@
      (let ((y (cgi-get-parameter "y" params :convert x->integer))
            (m (cgi-get-parameter "m" params :convert x->integer))
            (d (cgi-get-parameter "d" params :convert x->integer))
-           (cmd (cgi-get-parameter "c" params))
-           (plan (cgi-get-parameter "p" params
-                                    :convert (cut ces-convert <> "*jp"))))
+           (status (cgi-get-parameter "status" params))
+           (start (cgi-get-parameter "start" params
+                                     :convert (cut ces-convert <> "*jp")))
+           (end (cgi-get-parameter "end" params
+                                     :convert (cut ces-convert <> "*jp")))
+           (total (cgi-get-parameter "total" params
+                                     :convert (cut ces-convert <> "*jp")))
+           (comment (cgi-get-parameter "comment" params
+                                       :convert (cut ces-convert <> "*jp"))))
+
        (cgi-output-character-encoding 'utf-8)
        (with-db (db *db-name*)
                 (if (and y m d)
                     (cond
-                     ((equal? cmd "e")
+                     ((equal? status "e")
                       (cmd-edit-plan y m d))
-                     ((equal? cmd "c")
-                      (cmd-change-plan y m d plan))
+                     ((equal? status "c")
+                      (cmd-change-plan y m d start end total comment))
                      (else
                       (cmd-show-plan y m d)))
                     (cmd-show-calendar y m)))))))

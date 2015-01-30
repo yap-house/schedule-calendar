@@ -6,6 +6,7 @@
 body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td,img{
     margin:0;
     padding:0;
+    color: #333;
 }
 table {
     border-collapse:collapse;
@@ -38,7 +39,11 @@ abbr,acronym {
 a{
     text-decoration:none;
 }
- 
+
+a:link, a:visited {
+  color: #333;
+}
+
 a:hover,a.selected{
     text-decoration:none;
 }
@@ -54,22 +59,47 @@ a {
  * layout
  */
 
-.wrapper {
-  margin: 0 10px;
+h1 {
+  padding: 0 5px;
+  background: -webkit-gradient(linear,left top, left bottom, from(#625e5e), to(#383736));
+  background: -moz-linear-gradient(top, #625e5e, #383736);
+  overflow: hidden;
 }
 
-.wrapper h1 {
+h1 span {
+  display: block;
   max-width: 900px;
   margin: 0 auto;
-  padding: 10px 5px;
-  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+  font-size: 18px;
+}
+
+h1 a:link, h1 a:visited {
+  color: #fff;
+}
+
+h2 {
+  margin: 0 0 20px;
+  padding: 5px;
   border-left: 5px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  font-size: 16px;
 }
 
-.contents {
+h2 a {
+  margin: 0 0 0 1em;
+  font-size: 14px;
+}
+
+h2 a:link,h2 a:visited {
+  color: #7b7c80;
+}
+
+.wrapper {
   max-width: 900px;
   margin: 0 auto;
-  padding: 20px 10px 0;
+  padding: 20px 5px 60px;
+  overflow: hidden;
 }
 
 .calendar-header {
@@ -102,9 +132,46 @@ a {
 }
 
 .calendar {
+  table-layout: fixed;
   width: 100%;
-  border-top: 1px solid #ccc;
-  border-left: 1px solid #ccc;
+  height: 610px;
+  border: 1px solid #ccc;
+}
+
+.calendar th,
+.calendar td {
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  overflow: hidden;
+}
+
+.calendar th {
+  height: 20px;
+  background: -webkit-gradient(linear,left top, left bottom, from(#625e5e), to(#383736));
+  background: -moz-linear-gradient(top, #625e5e, #383736);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.calendar th:first-child,
+.calendar td:first-child a {
+  color: #f83039;
+}
+
+.calendar th:last-child,
+.calendar td:last-child a {
+  color: #949dfb;
+}
+
+.calendar td {
+  height: 118px;
+  vertical-align: top;
 }
 
 .calendar a {
@@ -112,23 +179,67 @@ a {
   width: 100%;
   height: 100%;
   padding: 3px;
+}
+
+.calendar a:hover {
+  background: #f4f4f4;
+}
+
+.calendar .planned {
+}
+
+.calendar .planned:hover {
+}
+
+.calendar a span {
+  display: block;
+  font-size: 14px;
+}
+
+.calendar a .start {
+  margin: 5px 0 0;
+}
+
+@media screen and (max-width: 640px) {
+  .calendar {
+    height: 410px;
+  }
+
+  .calendar td {
+    height: 80px;
+  }
+
+  .calendar a span {
+    display: none;
+  }
+}
+
+
+.report, .edit {
+  padding: 0 5px;
+}
+
+.report dd, .edit dd {
+  margin: 0 0 1em;
+}
+
+.report dd input, .edit dd input,
+.report dd textarea, .edit dd textarea {
+  padding: 3px;
+  border: 1px solid #ccc;
+  font-size: 100%;
+  line-height: 1.2;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.report dd textarea, .edit dd textarea {
+  max-width: 100%;
+  height: 120px;
   box-sizing: border-box;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
 }
 
-.calendar th,
-.calendar td {
-  border-right: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
-}
 
-.calendar th,
-.calendar .thead td {
-  text-align: center;
-  vertical-align: middle;
-}
-
-.calendar .planned {
-  background: #c1e0fa;
-}
