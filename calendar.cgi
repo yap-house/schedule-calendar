@@ -12,7 +12,7 @@
 (use dbm.fsdbm)
 
 (define db (make-parameter #f))
-(define *db-name* "/Users/okazaki/work/html/__schedule/data")
+(define *db-name* "data")
 (define *style* "static/style.css")
 
 
