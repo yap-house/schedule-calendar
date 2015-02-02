@@ -147,9 +147,9 @@
     (page
      (html:h2 #`",|y|年,|m|月,|d|日の日報" (html:a :href #`"?y=,|y|&m=,|m|&d=,|d|&status=e" "[予定を編集]"))
      (html:dl :class "report"
-              (html:dt "開始時間:")
+              (html:dt "出勤:")
               (html:dd (html-escape-string (get-data start)))
-              (html:dt "終了時間:")
+              (html:dt "退勤:")
               (html:dd (html-escape-string (get-data end)))
               (html:dt "勤務時間:")
               (html:dd (html-escape-string (get-data total)))
@@ -173,10 +173,10 @@
                 (html:input :type "hidden" :name "d" :value (x->string d))
 
                 (html:dl :class "edit"
-                         (html:dt "開始時間:")
+                         (html:dt "出勤:")
                          (html:dd (html:input :type "text" :name "start"
                                               :value (html-escape-string (get-data start))))
-                         (html:dt "終了時間:")
+                         (html:dt "退勤:")
                          (html:dd (html:input :type "text" :name "end"
                                               :value (html-escape-string (get-data end))))
                          (html:dt "勤務時間:")
