@@ -2,9 +2,13 @@
 
 (require "./functions")
 
-(define *style* "static/style.css")
+(define *db-name* "./data")
 
-(add-load-path "./system" #t)
-(define *calendar* "./calendar/")
-(define *views* "./views/")
-(display *system*)
+(define *style* "static/style.css")
+(define *script* "")
+
+(add-load-path "./")
+(add-load-path "./calendar")
+(add-load-path "./system")
+(add-load-path "./views")
+

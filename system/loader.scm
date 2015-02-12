@@ -10,7 +10,7 @@
 (use gauche.charconv)
 (use gauche.parameter)
 
-(require "./dbm")
-(require "./cmb")
-(require "../views/index")
-(require "../calendar/calendar")
+(require "dbm")
+(require "views")
+(require "cmd")
+(require "calendar")

@@ -1,9 +1,5 @@
 #!/usr/local/bin/gosh
 
-(require "./view-show-calendar")
-(require "./view-show-report")
-(require "./view-edit-report")
-
 (define (page . content)
   `(,(cgi-header)
     ,(html-doctype)
@@ -17,3 +13,4 @@
              (html:h1
               (html:span (html:a :href "./" "個別日報管理表")))
              (html:div :class "wrapper" content)))))
+

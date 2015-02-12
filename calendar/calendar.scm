@@ -1,6 +1,4 @@
-#/usr/bin/local/gosh
-
-(require "./functions")
+#!/usr/local/bin/gosh
 
 (define (date-cell y m d)
   (if d
