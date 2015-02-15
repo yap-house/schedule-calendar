@@ -1,9 +1,5 @@
 #!/usr/local/bin/gosh
 
-(define (add-load-path path)
-  (set! *load-path* (append *load-path* (list path))))
-
-
 ;; calendar functions
 
 (define (make-month m y)

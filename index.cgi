@@ -1,32 +1,35 @@
 #!/usr/local/bin/gosh
 
-
-(use util.list)
-(use srfi-1)
-(use srfi-13)
-(use srfi-19)
-(use text.html-lite)
-(use www.cgi)
-(use gauche.sequence)
-(use gauche.charconv)
-(use gauche.parameter)
-
-(define (page . content)
-  `(,(cgi-header)
-    ,(html-doctype)
-    ,(html:html
-      (html:head
-       (html:meta :name "viewport" :content "width=device-width")
-       (html:meta :http-equiv "Content-Type" :content "text/html; charset=UTF-8")
-       (html:title "個別日報管理表")
-       (html:link :rel "stylesheet" :href *style*))
-      (apply html:body
-             (html:h1
-              (html:span (html:a :href "./" "個別日報管理表")))
-             (html:div :class "wrapper" content)))))
-
 ;(require "./config")
 ;(require "loader")
+
+;(define (main args)
+;  (cgi-main
+;   (lambda (params)
+;     (cgi-output-character-encoding 'utf-8)
+;     (with-db (db *db-name*)
+;              (cmd-show-calendar 2015 2)))))
+
+(use text.html-lite)
+(use www.cgi)
+
+(define (main args)
+  (cgi-main
+    (lambda (params)
+      `(,(cgi-header)
+        ,(html-doctype)
+        ,(html:html
+          (html:head (html:title "Example"))
+          (html:body
+           (html:table
+            :border 1
+            (html:tr (html:th "Name") (html:th "Value"))
+            (map (lambda (p)
+                   (html:tr
+                    (html:td (html-escape-string (car p)))
+                    (html:td (html-escape-string (x->string (cdr p))))))
+                 params))))
+       ))))
 
 ;(define (main args)
 ;  (cgi-main
@@ -58,6 +61,4 @@
 ;                    (cmd-show-calendar y m)))))))
 ;
 ;
-(define (main)
-   (html:p "test"))
-(main)
+
