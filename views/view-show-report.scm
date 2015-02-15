@@ -20,4 +20,3 @@
               (html:dt "コメント:")
               (html:td (html-escape-string comment))))))
 
-(view-show-report 2012 3 2)

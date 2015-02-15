@@ -10,7 +10,7 @@
 (use gauche.charconv)
 (use gauche.parameter)
 
-(require "dbm")
+(require "dbm-utils")
 (require "views")
 (require "cmd")
 (require "calendar")

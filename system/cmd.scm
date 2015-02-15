@@ -8,22 +8,12 @@
 
 (define (cmd-show-report y m d)
   (require "view-show-report")
-
-  (view-show-report
-   (dbm-key-start y m d)
-   (dbm-key-end y m d)
-   (dbm-key-total y m d)
-   (dbm-key-comment y m d)))
+  (view-show-report y m d))
 
 
 (define (cmd-edit-report y m d)
   (require "view-edit-report")
-
-  (view-edit-report
-   (dbm-key-start y m d)
-   (dbm-key-end y m d)
-   (dbm-key-total y m d)
-   (dbm-key-comment y m d)))
+  (view-edit-report y m d))
 
 
 (define (cmd-change-report y m d start end total comment)
