@@ -17,14 +17,14 @@
                 (html:dl :class "edit"
                          (html:dt "出勤:")
                          (html:dd (html:input :type "text" :name "start"
-                                              :value (html-escape-string (get-data start))))
+                                              :value (html-escape-string start)))
                          (html:dt "退勤:")
                          (html:dd (html:input :type "text" :name "end"
-                                              :value (html-escape-string (get-data end))))
+                                              :value (html-escape-string end)))
                          (html:dt "勤務時間:")
                          (html:dd (html:input :type "text" :name "total"
-                                              :value (html-escape-string (get-data total))))
+                                              :value (html-escape-string total)))
                          (html:dt "コメント:")
                          (html:dd (html:textarea :row 8 :cols 40 :name "comment"
-                                                 (html-escape-string (get-data comment)))))
+                                                 (html-escape-string comment))))
                 (html:p (html:input :type "submit" :name "submit" :value "更新"))))))
