@@ -8,7 +8,7 @@
        (comment (get-data (dbm-key-comment y m d))))
     (page
      (html:h2 #`",|y|年,|m|月,|d|日の日報 - 編集画面")
-     (html:form :method "get" :action "./calendar.cgi"
+     (html:form :method "get" :action "./"
                 (html:input :type "hidden" :name "status" :value "c")
                 (html:input :type "hidden" :name "y" :value (x->string y))
                 (html:input :type "hidden" :name "m" :value (x->string m))
